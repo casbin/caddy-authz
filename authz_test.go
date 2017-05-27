@@ -1,11 +1,11 @@
 package authz
 
 import (
-	"testing"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"net/http/httptest"
-	"net/http"
 	"github.com/casbin/casbin"
+	"github.com/mholt/caddy/caddyhttp/httpserver"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func testRequest(t *testing.T, handler Authorizer, user string, path string, method string, code int) {

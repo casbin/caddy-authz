@@ -1,15 +1,15 @@
 package authz
 
 import (
-	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"github.com/mholt/caddy"
-	"net/http"
 	"github.com/casbin/casbin"
+	"github.com/mholt/caddy"
+	"github.com/mholt/caddy/caddyhttp/httpserver"
+	"net/http"
 )
 
 // Authorizer is a middleware for filtering clients based on their ip or country's ISO code.
 type Authorizer struct {
-	Next   httpserver.Handler
+	Next     httpserver.Handler
 	Enforcer *casbin.Enforcer
 }
 
@@ -28,7 +28,7 @@ func Setup(c *caddy.Controller) error {
 	// Create new middleware
 	newMiddleWare := func(next httpserver.Handler) httpserver.Handler {
 		return &Authorizer{
-			Next:   next,
+			Next:     next,
 			Enforcer: e,
 		}
 	}

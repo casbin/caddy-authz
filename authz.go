@@ -21,9 +21,18 @@ func init() {
 	})
 }
 
-// Setup parses the ipfilter configuration and returns the middleware handler.
+// GetConfig gets the config path that corresponds to c.
+func GetConfig(c *caddy.Controller) string {
+	if c.NextArg() {
+		return c.Val()
+	}
+	return ""
+}
+
+// Setup parses the Casbin configuration and returns the middleware handler.
 func Setup(c *caddy.Controller) error {
-	e := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
+	conf := GetConfig(c)
+	e := casbin.NewEnforcer(conf)
 
 	// Create new middleware
 	newMiddleWare := func(next httpserver.Handler) httpserver.Handler {

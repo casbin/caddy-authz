@@ -7,35 +7,41 @@ Caddy-authz is an authorization middleware for [Caddy](https://github.com/mholt/
 
     go get github.com/casbin/caddy-authz
 
-## Simple Example
+## Caddyfile syntax
 
-```Go
-package main
-
-import (
-	"net/http"
-
-	"github.com/casbin/caddy-authz"
-	"github.com/casbin/casbin"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
-)
-
-func main() {
-	// load the casbin model and policy from files, database is also supported.
-	e := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
-
-	// define your handler, this is just an example to return HTTP 200 for any requests.
-	// the access that is denied by authz will return HTTP 403 error.
-	handler := authz.Authorizer{
-        Next: httpserver.HandlerFunc(func(w http.ResponseWriter, r *http.Request) (int, error) {
-            return http.StatusOK, nil
-        }),
-        Enforcer: e,
-    }
+```
+http://localhost:80 {
+    authz "path/to/casbin.conf"
+    ...
 }
 ```
 
-## Documentation
+The ``authz`` directive specifies the path to Casbin config file, the name of which is usually ``casbin.conf``. For how to write the ``casbin.conf``, please refer to: https://github.com/casbin/casbin#get-started
+
+Note: To use Casbin, you also need a model file which describes your access control model, and a policy file which describes your authorization policies (if you store policy into a file, Another option is DB).
+
+## A working example
+
+1. ``cd`` into the folder of ``caddy`` binary.
+
+2. Put your Casbin model file [authz_model.conf](https://github.com/casbin/caddy-authz/blob/master/authz_model.conf) and Casbin policy file [authz_policy.csv](https://github.com/casbin/caddy-authz/blob/master/authz_policy.csv) into this folder.
+
+3. Put your Casbin config file [casbin.conf](https://github.com/casbin/caddy-authz/blob/master/casbin.conf) into this folder. You should specify your own paths to Casbin model file and policy file in Casbin config file.
+
+4. Add ``authz`` directive to your Caddyfile like:
+
+```
+http://localhost:80 {
+    authz "/folder/to/caddy_binary/casbin.conf"
+    root "/my-website.net"
+}
+```
+
+5. Run ``caddy`` and enjoy.
+
+Note: This plugin only supports HTTP basic authentication to get the logged-in user name, if you use other kinds of authentication like OAuth, LDAP, etc, you may need to customize this plugin.
+
+## How to control the access
 
 The authorization determines a request based on ``{subject, object, action}``, which means what ``subject`` can perform what ``action`` on what ``object``. In this plugin, the meanings are:
 

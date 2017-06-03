@@ -23,10 +23,13 @@ func init() {
 
 // GetConfig gets the config path that corresponds to c.
 func GetConfig(c *caddy.Controller) string {
-	if c.NextArg() {
-		return c.Val()
+	for c.Next() {              // skip the directive name
+		if !c.NextArg() {       // expect at least one value
+			return c.ArgErr().Error()   // otherwise it's an error
+		}
+		return c.Val()        // use the value
 	}
-	return ""
+	return "No Casbin config path found."
 }
 
 // Setup parses the Casbin configuration and returns the middleware handler.

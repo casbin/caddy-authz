@@ -22,20 +22,27 @@ func init() {
 }
 
 // GetConfig gets the config path that corresponds to c.
-func GetConfig(c *caddy.Controller) string {
+func GetConfig(c *caddy.Controller) (string, string) {
+	modelPath := ""
+	policyPath := ""
 	for c.Next() {              // skip the directive name
 		if !c.NextArg() {       // expect at least one value
-			return c.ArgErr().Error()   // otherwise it's an error
+			return c.ArgErr().Error(), policyPath   // otherwise it's an error
 		}
-		return c.Val()        // use the value
+		modelPath = c.Val()        // use the value
+
+		if !c.NextArg() {       // expect at least one value
+			return modelPath, c.ArgErr().Error()   // otherwise it's an error
+		}
+		policyPath = c.Val()        // use the value
 	}
-	return "No Casbin config path found."
+	return modelPath, policyPath
 }
 
 // Setup parses the Casbin configuration and returns the middleware handler.
 func Setup(c *caddy.Controller) error {
-	conf := GetConfig(c)
-	e := casbin.NewEnforcer(conf)
+	modelPath, policyPath := GetConfig(c)
+	e := casbin.NewEnforcer(modelPath, policyPath)
 
 	// Create new middleware
 	newMiddleWare := func(next httpserver.Handler) httpserver.Handler {

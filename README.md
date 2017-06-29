@@ -11,14 +11,12 @@ Caddy-authz is an authorization middleware for [Caddy](https://github.com/mholt/
 
 ```
 http://localhost:80 {
-    authz "path/to/casbin.conf"
+    authz "/folder/to/caddy_binary/authz_model.conf" /folder/to/caddy_binary/authz_policy.csv"
     ...
 }
 ```
 
-The ``authz`` directive specifies the path to Casbin config file, the name of which is usually ``casbin.conf``. For how to write the ``casbin.conf``, please refer to: https://github.com/casbin/casbin#get-started
-
-Note: To use Casbin, you also need a model file which describes your access control model, and a policy file which describes your authorization policies (if you store policy into a file, Another option is DB).
+The ``authz`` directive specifies the path to Casbin model file (.conf) and Casbin policy file (.csv). The Casbin model file describes access control models like ACL, RBAC, ABAC, etc. The Casbin policy file describes the authorization policy rules. For how to write these files, please refer to: https://github.com/casbin/casbin#get-started
 
 ## A working example
 
@@ -26,18 +24,16 @@ Note: To use Casbin, you also need a model file which describes your access cont
 
 2. Put your Casbin model file [authz_model.conf](https://github.com/casbin/caddy-authz/blob/master/authz_model.conf) and Casbin policy file [authz_policy.csv](https://github.com/casbin/caddy-authz/blob/master/authz_policy.csv) into this folder.
 
-3. Put your Casbin config file [casbin.conf](https://github.com/casbin/caddy-authz/blob/master/casbin.conf) into this folder. You should specify your own paths to Casbin model file and policy file in Casbin config file.
-
-4. Add ``authz`` directive to your Caddyfile like:
+3. Add ``authz`` directive to your Caddyfile like:
 
 ```
 http://localhost:80 {
-    authz "/folder/to/caddy_binary/casbin.conf"
+    authz "authz_model.conf" "authz_policy.csv"
     root "/my-website.net"
 }
 ```
 
-5. Run ``caddy`` and enjoy.
+4. Run ``caddy`` and enjoy.
 
 Note: This plugin only supports HTTP basic authentication to get the logged-in user name, if you use other kinds of authentication like OAuth, LDAP, etc, you may need to customize this plugin.
 

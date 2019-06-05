@@ -3,7 +3,7 @@ language: go
 sudo: false
 
 go:
-  - tip
+- 1.12.5
 
 env:
 - GO111MODULE=on
@@ -15,4 +15,4 @@ install:
 - go get -t ./...
 
 script:
-  - $HOME/gopath/bin/goveralls -service=travis-ci
+  - $GOPATH/gopath/bin/goveralls -service=travis-ci

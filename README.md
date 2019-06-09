@@ -11,7 +11,7 @@ Caddy-authz is an authorization middleware for [Caddy](https://github.com/mholt/
 
 ```
 http://localhost:80 {
-    authz "/folder/to/caddy_binary/authz_model.conf" /folder/to/caddy_binary/authz_policy.csv"
+    authz "/folder/to/caddy_binary/authz_model.conf" "/folder/to/caddy_binary/authz_policy.csv"
     ...
 }
 ```

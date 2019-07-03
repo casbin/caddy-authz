@@ -3,9 +3,9 @@ package authz
 import (
 	"net/http"
 
+	"github.com/caddyserver/caddy"
+	"github.com/caddyserver/caddy/caddyhttp/httpserver"
 	"github.com/casbin/casbin"
-	"github.com/mholt/caddy"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
 // Authorizer is a middleware for filtering clients based on their ip or country's ISO code.

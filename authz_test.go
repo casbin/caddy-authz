@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/caddyserver/caddy/caddyhttp/httpserver"
 	"github.com/casbin/casbin"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
 func testRequest(t *testing.T, handler Authorizer, user string, path string, method string, code int) {

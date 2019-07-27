@@ -43,7 +43,10 @@ func GetConfig(c *caddy.Controller) (string, string) {
 // Setup parses the Casbin configuration and returns the middleware handler.
 func Setup(c *caddy.Controller) error {
 	modelPath, policyPath := GetConfig(c)
-	e := casbin.NewEnforcer(modelPath, policyPath)
+	e, err := casbin.NewEnforcer(modelPath, policyPath)
+	if err != nil {
+		return err
+	}
 
 	// Create new middleware
 	newMiddleWare := func(next httpserver.Handler) httpserver.Handler {
@@ -61,7 +64,12 @@ func Setup(c *caddy.Controller) error {
 
 // ServeHTTP serves the request.
 func (a Authorizer) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	if !a.CheckPermission(r) {
+	allowed, err := a.CheckPermission(r)
+	if err != nil {
+		return http.StatusForbidden, err
+	}
+
+	if !allowed {
 		w.WriteHeader(403)
 		return http.StatusForbidden, nil
 	} else {
@@ -78,7 +86,7 @@ func (a *Authorizer) GetUserName(r *http.Request) string {
 
 // CheckPermission checks the user/method/path combination from the request.
 // Returns true (permission granted) or false (permission forbidden)
-func (a *Authorizer) CheckPermission(r *http.Request) bool {
+func (a *Authorizer) CheckPermission(r *http.Request) (bool, error) {
 	user := a.GetUserName(r)
 	method := r.Method
 	path := r.URL.Path

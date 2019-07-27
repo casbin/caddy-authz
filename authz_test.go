@@ -21,7 +21,7 @@ func testRequest(t *testing.T, handler Authorizer, user string, path string, met
 }
 
 func TestBasic(t *testing.T) {
-	e := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
+	e, _ := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
 
 	handler := Authorizer{
 		Next: httpserver.HandlerFunc(func(w http.ResponseWriter, r *http.Request) (int, error) {
@@ -37,7 +37,7 @@ func TestBasic(t *testing.T) {
 }
 
 func TestPathWildcard(t *testing.T) {
-	e := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
+	e, _ := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
 
 	handler := Authorizer{
 		Next: httpserver.HandlerFunc(func(w http.ResponseWriter, r *http.Request) (int, error) {
@@ -62,7 +62,7 @@ func TestPathWildcard(t *testing.T) {
 }
 
 func TestRBAC(t *testing.T) {
-	e := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
+	e, _ := casbin.NewEnforcer("authz_model.conf", "authz_policy.csv")
 
 	handler := Authorizer{
 		Next: httpserver.HandlerFunc(func(w http.ResponseWriter, r *http.Request) (int, error) {

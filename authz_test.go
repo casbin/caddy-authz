@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/caddyserver/caddy/caddyhttp/httpserver"
-	"github.com/casbin/casbin"
+	"github.com/casbin/casbin/v2"
 )
 
 func testRequest(t *testing.T, handler Authorizer, user string, path string, method string, code int) {

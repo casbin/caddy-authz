@@ -5,7 +5,7 @@ import (
 
 	"github.com/caddyserver/caddy"
 	"github.com/caddyserver/caddy/caddyhttp/httpserver"
-	"github.com/casbin/casbin"
+	"github.com/casbin/casbin/v2"
 )
 
 // Authorizer is a middleware for filtering clients based on their ip or country's ISO code.

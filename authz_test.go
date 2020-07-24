@@ -13,7 +13,7 @@ func testRequest(t *testing.T, handler Authorizer, user string, path string, met
 	r, _ := http.NewRequest(method, path, nil)
 	r.SetBasicAuth(user, "123")
 	w := httptest.NewRecorder()
-	handler.ServeHTTP(w, r)
+	_, _ = handler.ServeHTTP(w, r)
 
 	if w.Code != code {
 		t.Errorf("%s, %s, %s: %d, supposed to be %d", user, path, method, w.Code, code)
@@ -80,7 +80,7 @@ func TestRBAC(t *testing.T) {
 	testRequest(t, handler, "cathy", "/dataset2/item", "DELETE", 403)
 
 	// delete all roles on user cathy, so cathy cannot access any resources now.
-	e.DeleteRolesForUser("cathy")
+	_, _ = e.DeleteRolesForUser("cathy")
 
 	testRequest(t, handler, "cathy", "/dataset1/item", "GET", 403)
 	testRequest(t, handler, "cathy", "/dataset1/item", "POST", 403)

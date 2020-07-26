@@ -1,4 +1,17 @@
-http://localhost:80 {
-    authz "authz_model.conf" "authz_policy.csv"
-    root "/my-website.net"
+{
+    order authz before respond
+}
+
+localhost {
+	authz "authz_model.conf" "authz_policy.csv"
+	respond "Hello, world!"
+	...
+}
+----------------------------------------------------
+localhost {
+    route {
+    	authz "authz_model.conf" "authz_policy.csv"
+    }
+	respond "Hello, world!"
+	...
 }

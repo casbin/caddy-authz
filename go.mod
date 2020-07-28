@@ -1,4 +1,4 @@
-module github.com/00LT00/caddy-authz
+module github.com/casbin/caddy-authz
 
 go 1.14
 

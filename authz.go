@@ -1,80 +1,92 @@
 package authz
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/caddyserver/caddy"
-	"github.com/caddyserver/caddy/caddyhttp/httpserver"
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+
 	"github.com/casbin/casbin/v2"
 )
 
-// Authorizer is a middleware for filtering clients based on their ip or country's ISO code.
+func init() {
+	caddy.RegisterModule(Authorizer{})
+	httpcaddyfile.RegisterHandlerDirective("authz", parseCaddyfile)
+}
+
 type Authorizer struct {
-	Next     httpserver.Handler
+	AuthConfig struct {
+		ModelPath  string
+		PolicyPath string
+	}
 	Enforcer *casbin.Enforcer
 }
 
-// Init initializes the plugin
-func init() {
-	caddy.RegisterPlugin("authz", caddy.Plugin{
-		ServerType: "http",
-		Action:     Setup,
-	})
-}
-
-// GetConfig gets the config path that corresponds to c.
-func GetConfig(c *caddy.Controller) (string, string) {
-	modelPath := ""
-	policyPath := ""
-	for c.Next() {              // skip the directive name
-		if !c.NextArg() {       // expect at least one value
-			return c.ArgErr().Error(), policyPath   // otherwise it's an error
-		}
-		modelPath = c.Val()        // use the value
-
-		if !c.NextArg() {       // expect at least one value
-			return modelPath, c.ArgErr().Error()   // otherwise it's an error
-		}
-		policyPath = c.Val()        // use the value
+// CaddyModule returns the Caddy module information.
+func (Authorizer) CaddyModule() caddy.ModuleInfo {
+	return caddy.ModuleInfo{
+		ID:  "http.handlers.authz",
+		New: func() caddy.Module { return new(Authorizer) },
 	}
-	return modelPath, policyPath
 }
 
-// Setup parses the Casbin configuration and returns the middleware handler.
-func Setup(c *caddy.Controller) error {
-	modelPath, policyPath := GetConfig(c)
-	e, err := casbin.NewEnforcer(modelPath, policyPath)
+// Provision implements caddy.Provisioner.
+func (a *Authorizer) Provision(ctx caddy.Context) error {
+	e, err := casbin.NewEnforcer(a.AuthConfig.ModelPath, a.AuthConfig.PolicyPath)
+	if err != nil {
+		return err
+	}
+	a.Enforcer = e
+	return nil
+}
+
+// Validate implements caddy.Validator.
+func (a *Authorizer) Validate() error {
+	if a.Enforcer == nil {
+		return fmt.Errorf("no Enforcer")
+	}
+	return nil
+}
+
+// ServeHTTP implements caddyhttp.MiddlewareHandler.
+func (a Authorizer) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	allowed, err := a.CheckPermission(r)
 	if err != nil {
 		return err
 	}
 
-	// Create new middleware
-	newMiddleWare := func(next httpserver.Handler) httpserver.Handler {
-		return &Authorizer{
-			Next:     next,
-			Enforcer: e,
-		}
+	if !allowed {
+		w.WriteHeader(403)
+		return nil
 	}
-	// Add middleware
-	cfg := httpserver.GetConfig(c)
-	cfg.AddMiddleware(newMiddleWare)
 
+	return next.ServeHTTP(w, r)
+}
+
+// UnmarshalCaddyfile implements caddyfile.Unmarshaler.
+func (a *Authorizer) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
+	for d.Next() {
+		if !d.NextArg() {
+			return d.ArgErr()
+		}
+		a.AuthConfig.ModelPath = d.Val()
+		if !d.NextArg() {
+			return d.ArgErr()
+		}
+		a.AuthConfig.PolicyPath = d.Val()
+	}
 	return nil
 }
 
-// ServeHTTP serves the request.
-func (a Authorizer) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	allowed, err := a.CheckPermission(r)
-	if err != nil {
-		return http.StatusForbidden, err
-	}
-
-	if !allowed {
-		w.WriteHeader(403)
-		return http.StatusForbidden, nil
-	} else {
-		return a.Next.ServeHTTP(w, r)
-	}
+// parseCaddyfile unmarshals tokens from h into a new Authorizer.
+func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
+	fmt.Println("parse")
+	var m Authorizer
+	err := m.UnmarshalCaddyfile(h.Dispenser)
+	return m, err
 }
 
 // GetUserName gets the user name from the request.
@@ -92,3 +104,11 @@ func (a *Authorizer) CheckPermission(r *http.Request) (bool, error) {
 	path := r.URL.Path
 	return a.Enforcer.Enforce(user, path, method)
 }
+
+// Interface guards
+var (
+	_ caddy.Provisioner           = (*Authorizer)(nil)
+	_ caddy.Validator             = (*Authorizer)(nil)
+	_ caddyhttp.MiddlewareHandler = (*Authorizer)(nil)
+	_ caddyfile.Unmarshaler       = (*Authorizer)(nil)
+)

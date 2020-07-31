@@ -10,8 +10,25 @@ Caddy-authz is an authorization middleware for [Caddy](https://github.com/mholt/
 ## Caddyfile syntax
 
 ```
-http://localhost:80 {
-    authz "/folder/to/caddy_binary/authz_model.conf" "/folder/to/caddy_binary/authz_policy.csv"
+localhost {
+    route { 
+        authz "/folder/to/caddy_binary/authz_model.conf" "/folder/to/caddy_binary/authz_policy.csv"
+    }
+    respond "Hello, world!"
+    ...
+}
+```
+
+or
+
+```
+{
+    order authz before respond
+}
+
+localhost {
+	authz "/folder/to/caddy_binary/authz_model.conf" "/folder/to/caddy_binary/authz_policy.csv"
+	respond "Hello, world!"
     ...
 }
 ```
@@ -27,9 +44,12 @@ The ``authz`` directive specifies the path to Casbin model file (.conf) and Casb
 3. Add ``authz`` directive to your Caddyfile like:
 
 ```
-http://localhost:80 {
-    authz "authz_model.conf" "authz_policy.csv"
-    root "/my-website.net"
+localhost:666 {
+    route { 
+        authz "authz_model.conf" "authz_policy.csv"
+    }
+    respond "Hello, world!"
+    ...
 }
 ```
 

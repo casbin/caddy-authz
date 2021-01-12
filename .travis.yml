@@ -3,7 +3,8 @@ language: go
 sudo: false
 
 go:
-- 1.12.5
+- 1.14
+- 1.15
 
 env:
 - GO111MODULE=on

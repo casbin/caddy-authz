@@ -83,7 +83,6 @@ func (a *Authorizer) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 
 // parseCaddyfile unmarshals tokens from h into a new Authorizer.
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	fmt.Println("parse")
 	var m Authorizer
 	err := m.UnmarshalCaddyfile(h.Dispenser)
 	return m, err
@@ -92,7 +91,7 @@ func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error)
 // GetUserName gets the user name from the request.
 // Currently, only HTTP basic authentication is supported
 func (a *Authorizer) GetUserName(r *http.Request) string {
-	username, _, _ := r.BasicAuth()
+	username := r.Header.Get("Authorization")
 	return username
 }
 

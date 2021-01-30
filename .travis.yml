@@ -7,13 +7,15 @@ go:
 - 1.15
 
 env:
-- GO111MODULE=on
+  - GO111MODULE=on
 
-before_install:
-  - go get github.com/mattn/goveralls
 
 install:
-- go get -t ./...
+  - go get -t ./...
+  - go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
+
+before_script:
+  - xcaddy build
 
 script:
-  - $GOPATH/bin/goveralls -service=travis-ci
+  - go test -v -coverprofile="cover-profile.out" -short -race ./...

@@ -13,9 +13,10 @@ env:
 install:
   - go get -t ./...
   - go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
+  - go get github.com/mattn/goveralls
 
 before_script:
   - xcaddy build
 
 script:
-  - go test -v -coverprofile="cover-profile.out" -short -race ./...
+  - $GOPATH/bin/goveralls -service=travis-ci

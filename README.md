@@ -1,4 +1,4 @@
-Caddy-authz [![Build Status](https://travis-ci.com/casbin/caddy-authz.svg?branch=master)](https://travis-ci.com/casbin/caddy-authz) [![Coverage Status](https://coveralls.io/repos/github/casbin/caddy-authz/badge.svg?branch=master)](https://coveralls.io/github/casbin/caddy-authz?branch=master) [![GoDoc](https://godoc.org/github.com/casbin/caddy-authz?status.svg)](https://godoc.org/github.com/casbin/caddy-authz)
+Caddy-authz [![Coverage Status](https://coveralls.io/repos/github/casbin/caddy-authz/badge.svg?branch=master)](https://coveralls.io/github/casbin/caddy-authz?branch=master) [![GoDoc](https://godoc.org/github.com/casbin/caddy-authz?status.svg)](https://godoc.org/github.com/casbin/caddy-authz)
 ======
 
 Caddy-authz is an authorization middleware for [Caddy](https://github.com/mholt/caddy), it's based on [https://github.com/casbin/casbin](https://github.com/casbin/casbin).
